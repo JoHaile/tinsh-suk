@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="am">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>የሱቅ አስተዳደር ስርዓት</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f0f2f5;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Align items to the start to prevent vertical centering issues on smaller content */
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        width: 100%;
+        max-width: 900px;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+      }
+      h1,
+      h2 {
+        color: #2c3e50;
+        font-weight: 700;
+      }
+      .section-box {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #fdfdfd;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="date"] {
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+      }
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      input[type="date"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+      }
+      button {
+        background-color: #3b82f6;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+      }
+      button:hover {
+        background-color: #2563eb;
+        transform: translateY(-1px);
+      }
+      button:active {
+        background-color: #1d4ed8;
+        transform: translateY(0);
+      }
+      .message-box {
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        font-weight: 500;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        max-height: 0;
+        overflow: hidden;
+      }
+      .message-box.show {
+        opacity: 1;
+        max-height: 100px; /* Adjust as needed */
+        padding: 10px 15px; /* Restore padding when shown */
+      }
+      .message-box.success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+      }
+      .message-box.error {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+      }
+      .item-list-header {
+        font-weight: 600;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .item-entry {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #f0f0f0;
+      }
+      .item-entry:last-child {
+        border-bottom: none;
+      }
+      .predefined-item-card {
+        background-color: #ecf3fe;
+        border: 1px solid #c3dafc;
+        border-radius: 8px;
+        padding: 12px 15px;
+        transition: all 0.2s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        /* justify-content: center; */
+        align-items: center;
+        font-weight: 500;
+        color: #2c5282;
+        cursor: pointer; /* Make the entire card clickable by default */
+      }
+      .predefined-item-card:hover {
+        background-color: #dbeafe;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .predefined-item-card:active {
+        transform: translateY(0);
+        box-shadow: none;
+      }
+      .price-controls {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .price-control-btn {
+        background-color: #60a5fa;
+        color: white;
+        width: 20px;
+        height: 35px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .price-control-btn:hover {
+        background-color: #3b82f6;
+      }
+      .price-control-btn:active {
+        background-color: #2563eb;
+      }
+
+      /* Layout changes for larger screens */
+      @media (min-width: 768px) {
+        .container {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .section-box {
+          flex: 1 1 calc(50% - 12.5px); /* Two columns with gap */
+        }
+        .section-box:nth-child(odd) {
+          margin-right: 25px; /* Gap between columns */
+        }
+        .section-box:nth-child(even) {
+          margin-left: 0; /* Reset for even columns */
+        }
+        .full-width-section {
+          flex: 1 1 100%;
+        }
+        /* Wrapper for quick sale sections to make them side-by-side */
+        .quick-sale-sections-wrapper {
+          display: flex;
+          flex-direction: row;
+          gap: 25px; /* Gap between the two quick sale sections */
+          flex: 1 1 100%; /* Take full width */
+        }
+        .quick-sale-sections-wrapper .section-box {
+          flex: 1 1 calc(50% - 12.5px); /* Each takes half of the wrapper's width */
+        }
+        /* Wrapper for record sale and current day's sales sections */
+        .sales-sections-wrapper {
+          display: flex;
+          flex-direction: row;
+          gap: 25px; /* Gap between the two sales sections */
+          flex: 1 1 100%; /* Take full width */
+        }
+        .sales-sections-wrapper .section-box {
+          flex: 1 1 calc(50% - 12.5px); /* Each takes half of the wrapper's width */
+        }
+        /* Adjusting order for the new sections */
+        .add-quick-sale-item-section {
+          order: 1; /* Default order */
+        }
+        .predefined-items-section {
+          order: 2; /* Default order */
+        }
+        /* Adjust predefined items grid for larger screens to be single column to fit better */
+        #predefinedItemsContainer {
+          grid-template-columns: repeat(
+            2,
+            1fr
+          ); /* Single column on larger screens */
+        }
+      }
+      /* Layout changes for smaller screens */
+      @media (max-width: 767px) {
+        .container {
+          padding: 20px;
+        }
+        .section-box {
+          padding: 15px;
+        }
+        .quick-sale-sections-wrapper,
+        .sales-sections-wrapper {
+          flex-direction: column; /* Stack vertically on small screens */
+        }
+        #predefinedItemsContainer {
+          grid-template-columns: 1fr; /* Single column on small screens */
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div class="container">
+      <h1 class="text-3xl mb-6 text-center w-full">የሱቅ አስተዳደር ስርዓት</h1>
+
+      <!-- Wrapper for Quick Sale Sections -->
+      <div class="quick-sale-sections-wrapper">
+        <!-- Add New Quick Sale Item Section -->
+        <div class="section-box add-quick-sale-item-section">
+          <h2 class="text-2xl mb-4">አዲስ ፈጣን ሽያጭ ዕቃ ያክሉ</h2>
+          <div class="mb-4">
+            <label
+              for="newQuickItemName"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >የዕቃ ስም:</label
+            >
+            <input
+              type="text"
+              id="newQuickItemName"
+              placeholder="ለምሳሌ፣ አዲስ መግብር"
+              class="focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div class="mb-6">
+            <label
+              for="newQuickItemPrice"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >የዕቃ ዋጋ (በአሜሪካን ዶላር):</label
+            >
+            <input
+              type="number"
+              id="newQuickItemPrice"
+              placeholder="ለምሳሌ፣ 25.99"
+              step="0.01"
+              class="focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <button id="addQuickItemBtn" class="w-full">ፈጣን ሽያጭ ዕቃ ያክሉ</button>
+          <div id="messageBoxQuickSale" class="message-box"></div>
+          <!-- Dedicated message box for quick sale items -->
+        </div>
+
+        <!-- Predefined Shop Items Section -->
+        <div class="section-box predefined-items-section">
+          <h2 class="text-2xl mb-4">ፈጣን ሽያጭ ዕቃዎች</h2>
+          <div id="predefinedItemsContainer" class="grid gap-4">
+            <!-- Predefined items will be dynamically added here -->
+            <p
+              class="text-gray-500 text-sm text-center col-span-full"
+              id="noPredefinedItemsMessage"
+            >
+              እስካሁን ምንም ፈጣን ሽያጭ ዕቃዎች አልተጨመሩም።
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Day's Sales Section - Now full width -->
+      <div class="section-box full-width-section">
+        <h2 class="text-2xl mb-4">
+          የዛሬ ሽያጭ (<span id="currentDateDisplay"></span>)
+        </h2>
+        <p class="text-lg mb-2">
+          የተሸጡ ጠቅላላ ዕቃዎች:
+          <span id="currentTotalItemsSold" class="font-semibold text-blue-600"
+            >0</span
+          >
+        </p>
+        <p class="text-lg mb-4">
+          ጠቅላላ ገቢ:
+          <span id="currentTotalRevenue" class="font-semibold text-green-600"
+            >$0.00</span
+          >
+        </p>
+
+        <div class="item-list-header">
+          <span>ዕቃ</span>
+          <span>ብዛት</span>
+          <span>ዋጋ</span>
+        </div>
+        <div id="currentItemsList" class="max-h-48 overflow-y-auto pr-2">
+          <!-- Items will be dynamically added here -->
+          <p class="text-gray-500 text-sm" id="noCurrentItemsMessage">
+            ዛሬ ምንም ዕቃዎች አልተሸጡም።
+          </p>
+        </div>
+      </div>
+
+      <!-- Wrapper for Record Sale and Retrieve Historical Data Sections -->
+      <div class="sales-sections-wrapper">
+        <!-- Record Sale Section -->
+        <div class="section-box flex-grow">
+          <h2 class="text-2xl mb-4">ሽያጭ ይመዝግቡ</h2>
+          <div class="mb-4">
+            <label
+              for="itemName"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >የዕቃ ስም:</label
+            >
+            <input
+              type="text"
+              id="itemName"
+              placeholder="ለምሳሌ፣ ፖም"
+              class="focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div class="mb-6">
+            <label
+              for="itemPrice"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >የዕቃ ዋጋ (በአሜሪካን ዶላር):</label
+            >
+            <input
+              type="number"
+              id="itemPrice"
+              placeholder="ለምሳሌ፣ 1.50"
+              step="0.01"
+              class="focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <button id="recordSaleBtn" class="w-full">ሽያጭ ይመዝግቡ</button>
+          <div id="messageBox" class="message-box"></div>
+          <!-- Main message box for sales recording -->
+        </div>
+
+        <!-- Retrieve Historical Data Section -->
+        <div class="section-box flex-grow">
+          <h2 class="text-2xl mb-4">የቀድሞ መረጃ ይመልከቱ</h2>
+          <div class="mb-4">
+            <label
+              for="retrieveDate"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >ቀን ይምረጡ:</label
+            >
+            <input
+              type="date"
+              id="retrieveDate"
+              class="focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <button id="retrieveDataBtn" class="w-full">መረጃ ይመልከቱ</button>
+          <div
+            id="retrievedDataDisplay"
+            class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200"
+          >
+            <p class="text-gray-600 text-center" id="noRetrievedDataMessage">
+              የቀድሞ ሽያጮችን ለማየት ቀን ይምረጡ እና "መረጃ ይመልከቱ" የሚለውን ይጫኑ።
+            </p>
+            <!-- Retrieved data will be displayed here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // This script is for the application logic
+
+      const LOCAL_STORAGE_SALES_KEY = "shopManagementSalesData";
+      const LOCAL_STORAGE_PREDEFINED_ITEMS_KEY =
+        "shopManagementPredefinedItems";
+
+      // Declare variables globally but assign them inside DOMContentLoaded
+      let itemNameInput;
+      let itemPriceInput;
+      let recordSaleBtn;
+      let messageBox; // Main message box for sales recording
+      let messageBoxQuickSale; // New message box for quick sale items
+
+      let currentDateDisplay;
+      let currentTotalItemsSoldSpan;
+      let currentTotalRevenueSpan;
+      let currentItemsListDiv;
+      let noCurrentItemsMessage;
+      let retrieveDateInput;
+      let retrieveDataBtn;
+      let retrievedDataDisplayDiv;
+      let noRetrievedDataMessage;
+      let predefinedItemsContainer;
+      let noPredefinedItemsMessage;
+      let newQuickItemNameInput;
+      let newQuickItemPriceInput;
+      let addQuickItemBtn;
+
+      // Predefined list of shop items (now loaded from local storage)
+      let predefinedShopItems = []; // This will be populated from localStorage
+
+      // Amharic month names in order corresponding to Gregorian months (Jan-Dec)
+      const amharicGregorianMonthNames = [
+        "ጥር",
+        "የካቲት",
+        "መጋቢት",
+        "ሚያዝያ",
+        "ግንቦት",
+        "ሰኔ",
+        "ሐምሌ",
+        "ነሐሴ",
+        "መስከረም",
+        "ጥቅምት",
+        "ኅዳር",
+        "ታኅሣሥ",
+      ];
+
+      /**
+       * Helper function to get today's date in YYYY-MM-DD Gregorian format for internal storage.
+       * @returns {string} Current date string (YYYY-MM-DD).
+       */
+      function getTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+        const day = String(today.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      /**
+       * Converts a Gregorian date string (YYYY-MM-DD) to a simplified Ethiopian date display.
+       * This function calculates the Ethiopian year and uses Amharic month names
+       * based on the Gregorian month index. It keeps the Gregorian day number.
+       * This is a practical approximation for display without a full Ethiopian calendar library.
+       * @param {string} gregorianDateString - The Gregorian date string in YYYY-MM-DD format.
+       * @returns {string} The simplified Ethiopian date string (e.g., "2017 ሐምሌ 1").
+       */
+      function getEthiopianDateDisplay(gregorianDateString) {
+        const gregorianDate = new Date(gregorianDateString);
+        const year = gregorianDate.getFullYear();
+        const month = gregorianDate.getMonth(); // 0-11 for Jan-Dec
+        const day = gregorianDate.getDate();
+
+        let ethiopianYear;
+        // Ethiopian New Year (Enkutatash) is usually September 11 (Gregorian), sometimes September 12 (Gregorian leap year).
+        // For simplicity, if Gregorian month is September (index 8) and day is 11 or later, or if month is Oct-Dec (index 9-11)
+        if (month > 8 || (month === 8 && day >= 11)) {
+          ethiopianYear = year - 7;
+        } else {
+          // January (month 0) to September 10 (month 8, day 10) Gregorian
+          ethiopianYear = year - 8;
+        }
+
+        const ethiopianMonthName = amharicGregorianMonthNames[month];
+
+        return `${ethiopianYear} ${ethiopianMonthName} ${day}`;
+      }
+
+      /**
+       * Displays a temporary message to the user in a specified message box.
+       * @param {string} message - The message to display.
+       * @param {'success'|'error'} type - The type of message (success or error).
+       * @param {HTMLElement} [targetMessageBox] - The specific message box element to use. Defaults to 'messageBox'.
+       */
+      function displayMessage(message, type, targetMessageBox = messageBox) {
+        if (targetMessageBox === null || targetMessageBox === undefined) {
+          console.warn(
+            "Target message box element not found. Cannot display message:",
+            message
+          );
+          return; // Exit if targetMessageBox is not available
+        }
+        targetMessageBox.textContent = message;
+        targetMessageBox.className = `message-box ${type} show`; // Reset classes and add new ones
+
+        // Hide message after 3 seconds
+        setTimeout(() => {
+          if (targetMessageBox !== null && targetMessageBox !== undefined) {
+            // Defensive check before manipulating
+            targetMessageBox.className = `message-box ${type}`; // Hide by removing 'show'
+          }
+        }, 3000);
+      }
+
+      /**
+       * Loads all sales data from local storage.
+       * @returns {Object} The parsed sales data object, or an empty object if none exists.
+       */
+      function loadSalesData() {
+        try {
+          const data = localStorage.getItem(LOCAL_STORAGE_SALES_KEY);
+          return data ? JSON.parse(data) : {};
+        } catch (e) {
+          console.error("Error loading sales data from local storage:", e);
+          displayMessage(
+            "Error loading sales data. Please try again.",
+            "error"
+          );
+          return {};
+        }
+      }
+
+      /**
+       * Saves the entire sales data object to local storage.
+       * @param {Object} data - The sales data object to save.
+       */
+      function saveSalesData(data) {
+        try {
+          localStorage.setItem(LOCAL_STORAGE_SALES_KEY, JSON.stringify(data));
+        } catch (e) {
+          console.error("Error saving sales data to local storage:", e);
+          displayMessage("Error saving sales data. Please try again.", "error");
+        }
+      }
+
+      /**
+       * Loads predefined items from local storage.
+       * @returns {Array} The parsed predefined items array, or default if none exists.
+       */
+      function loadPredefinedItems() {
+        try {
+          const data = localStorage.getItem(LOCAL_STORAGE_PREDEFINED_ITEMS_KEY);
+          // Provide some initial default items if none are saved yet
+          return data
+            ? JSON.parse(data)
+            : [
+                { name: "ፓስታ", price: 100 },
+                { name: "ቡና (1 ኪሎ)", price: 400 },
+                { name: "ሰን ችፕስ", price: 35 },
+                { name: "ጁስ", price: 90 },
+                { name: "ዳቦ", price: 10 },
+              ];
+        } catch (e) {
+          console.error(
+            "Error loading predefined items from local storage:",
+            e
+          );
+          displayMessage(
+            "Error loading quick sale items. Please try again.",
+            "error",
+            messageBoxQuickSale
+          );
+          return [];
+        }
+      }
+
+      /**
+       * Saves predefined items to local storage.
+       * @param {Array} items - The predefined items array to save.
+       */
+      function savePredefinedItems(items) {
+        try {
+          localStorage.setItem(
+            LOCAL_STORAGE_PREDEFINED_ITEMS_KEY,
+            JSON.stringify(items)
+          );
+        } catch (e) {
+          console.error("Error saving predefined items to local storage:", e);
+          displayMessage(
+            "Error saving quick sale items. Please try again.",
+            "error",
+            messageBoxQuickSale
+          );
+        }
+      }
+
+      /**
+       * Records a sale for an item.
+       * @param {HTMLElement} [targetMessageBox] - Optional message box to display the success message.
+       */
+      function recordSale(targetMessageBox = messageBox) {
+        const itemName = itemNameInput.value.trim();
+        const itemPrice = parseFloat(itemPriceInput.value);
+
+        // Input validation
+        if (!itemName) {
+          displayMessage("እባክዎ የዕቃ ስም ያስገቡ።", "error", targetMessageBox);
+          return;
+        }
+        if (isNaN(itemPrice) || itemPrice <= 0) {
+          displayMessage(
+            "እባክዎ ትክክለኛ አዎንታዊ ዋጋ ያስገቡ።",
+            "error",
+            targetMessageBox
+          );
+          return;
+        }
+
+        const todayDate = getTodayDate(); // Gregorian date for storage
+        const allSalesData = loadSalesData();
+
+        // Get or initialize today's record
+        if (!allSalesData[todayDate]) {
+          allSalesData[todayDate] = {
+            items: [],
+            totalItemsSold: 0,
+            totalRevenue: 0,
+          };
+        }
+
+        const currentDayRecord = allSalesData[todayDate];
+
+        // Check if item already exists for today
+        const existingItemIndex = currentDayRecord.items.findIndex(
+          (item) => item.name.toLowerCase() === itemName.toLowerCase()
+        );
+
+        if (existingItemIndex > -1) {
+          // Update existing item
+          currentDayRecord.items[existingItemIndex].quantity += 1;
+          currentDayRecord.items[existingItemIndex].price += itemPrice; // Accumulate price for the item
+        } else {
+          // Add new item
+          currentDayRecord.items.push({
+            name: itemName,
+            price: itemPrice,
+            quantity: 1,
+          });
+        }
+
+        // Update daily totals
+        currentDayRecord.totalItemsSold += 1;
+        currentDayRecord.totalRevenue += itemPrice;
+
+        // Save updated data
+        saveSalesData(allSalesData);
+
+        // Clear input fields
+        itemNameInput.value = "";
+        itemPriceInput.value = "";
+
+        displayMessage("ሽያጭ በተሳካ ሁኔታ ተመዝግቧል!", "success", targetMessageBox);
+        displayCurrentDaySales(); // Refresh current day's display
+      }
+
+      /**
+       * Displays the current day's sales data.
+       */
+      function displayCurrentDaySales() {
+        const todayDateGregorian = getTodayDate(); // Gregorian date for internal logic
+        const todayDateEthiopian = getEthiopianDateDisplay(todayDateGregorian); // Ethiopian date for display
+
+        // Consolidated check for all critical elements
+        if (
+          !currentDateDisplay ||
+          !currentTotalItemsSoldSpan ||
+          !currentTotalRevenueSpan ||
+          !currentItemsListDiv ||
+          !noCurrentItemsMessage
+        ) {
+          console.error(
+            "ለዛሬ ሽያጭ ማሳያ አንድ ወይም ከዚያ በላይ ወሳኝ የDOM አካላት ጠፍተዋል። ማሳያውን ማዘመን አይቻልም።"
+          );
+          console.error(
+            "የማረሚያ መረጃ: currentDateDisplay:",
+            currentDateDisplay,
+            "currentTotalItemsSoldSpan:",
+            currentTotalItemsSoldSpan,
+            "currentTotalRevenueSpan:",
+            currentTotalRevenueSpan,
+            "currentItemsListDiv:",
+            currentItemsListDiv,
+            "noCurrentItemsMessage:",
+            noCurrentItemsMessage
+          );
+          return; // Exit the function immediately if any critical element is null
+        }
+
+        currentDateDisplay.textContent = todayDateEthiopian; // Update the date display with Ethiopian date
+
+        const allSalesData = loadSalesData();
+        const currentDayRecord = allSalesData[todayDateGregorian]; // Use Gregorian date for lookup
+
+        // These lines are now protected by the consolidated check above
+        currentTotalItemsSoldSpan.textContent = currentDayRecord
+          ? currentDayRecord.totalItemsSold
+          : "0";
+        currentTotalRevenueSpan.textContent = currentDayRecord
+          ? `$${currentDayRecord.totalRevenue.toFixed(2)}`
+          : "$0.00";
+
+        currentItemsListDiv.innerHTML = ""; // Clear previous list
+        noCurrentItemsMessage.classList.add("hidden"); // Hide "No items" message
+
+        if (currentDayRecord) {
+          currentDayRecord.items.forEach((item) => {
+            const itemEntry = document.createElement("div");
+            itemEntry.className = "item-entry text-sm text-gray-800";
+            itemEntry.innerHTML = `
+                        <span class="flex-1">${item.name}</span>
+                        <span class="w-1/6 text-center">${item.quantity}</span>
+                        <span class="w-1/6 text-right">$${item.price.toFixed(
+                          2
+                        )}</span>
+                    `;
+            currentItemsListDiv.appendChild(itemEntry);
+          });
+        } else {
+          // No sales for today
+          noCurrentItemsMessage.classList.remove("hidden"); // Show "No items" message
+        }
+      }
+
+      /**
+       * Retrieves and displays sales data for a specific date.
+       */
+      function retrieveData() {
+        const retrieveDateGregorian = retrieveDateInput.value; // Gregorian date from input
+
+        if (!retrieveDateGregorian) {
+          displayMessage("እባክዎ መረጃ ለማየት ቀን ይምረጡ።", "error");
+          if (retrievedDataDisplayDiv)
+            retrievedDataDisplayDiv.innerHTML = `<p class="text-gray-600 text-center">የቀድሞ ሽያጮችን ለማየት ቀን ይምረጡ እና "መረጃ ይመልከቱ" የሚለውን ይጫኑ።</p>`;
+          return;
+        }
+
+        const retrievedDateEthiopian = getEthiopianDateDisplay(
+          retrieveDateGregorian
+        ); // Ethiopian date for display
+
+        const allSalesData = loadSalesData();
+        const retrievedRecord = allSalesData[retrieveDateGregorian]; // Use Gregorian date for lookup
+
+        if (retrievedDataDisplayDiv) {
+          retrievedDataDisplayDiv.innerHTML = ""; // Clear previous content
+          if (noRetrievedDataMessage)
+            noRetrievedDataMessage.classList.add("hidden"); // Hide default message
+
+          if (retrievedRecord) {
+            const htmlContent = `
+                        <h3 class="text-xl font-bold mb-3 text-blue-700">የ${retrievedDateEthiopian} ሽያጭ</h3>
+                        <p class="text-lg mb-2">የተሸጡ ጠቅላላ ዕቃዎች: <span class="font-semibold text-blue-600">${
+                          retrievedRecord.totalItemsSold
+                        }</span></p>
+                        <p class="text-lg mb-4">ጠቅላላ ገቢ: <span class="font-semibold text-green-600">$${retrievedRecord.totalRevenue.toFixed(
+                          2
+                        )}</span></p>
+                        <div class="item-list-header">
+                            <span>ዕቃ</span>
+                            <span>ብዛት</span>
+                            <span>ዋጋ</span>
+                        </div>
+                        <div class="max-h-48 overflow-y-auto pr-2">
+                            ${retrievedRecord.items
+                              .map(
+                                (item) => `
+                                <div class="item-entry text-sm text-gray-800">
+                                    <span class="flex-1">${item.name}</span>
+                                    <span class="w-1/6 text-center">${
+                                      item.quantity
+                                    }</span>
+                                    <span class="w-1/6 text-right">$${item.price.toFixed(
+                                      2
+                                    )}</span>
+                                </div>
+                            `
+                              )
+                              .join("")}
+                        </div>
+                    `;
+            retrievedDataDisplayDiv.innerHTML = htmlContent;
+          } else {
+            retrievedDataDisplayDiv.innerHTML = `<p class="text-gray-600 text-center">ለ${retrievedDateEthiopian} ምንም የሽያጭ መረጃ አልተገኘም።</p>`;
+          }
+        } else {
+          console.error(
+            "retrievedDataDisplayDiv element not found for retrieveData."
+          );
+        }
+      }
+
+      /**
+       * Renders the predefined shop items into the UI.
+       */
+      function renderPredefinedItems() {
+        if (!predefinedItemsContainer) {
+          console.error(
+            "predefinedItemsContainer element not found for renderPredefinedItems."
+          );
+          return;
+        }
+        predefinedItemsContainer.innerHTML = ""; // Clear existing items
+
+        if (predefinedShopItems.length === 0) {
+          if (noPredefinedItemsMessage)
+            noPredefinedItemsMessage.classList.remove("hidden");
+        } else {
+          if (noPredefinedItemsMessage)
+            noPredefinedItemsMessage.classList.add("hidden");
+          predefinedShopItems.forEach((item, index) => {
+            const itemCard = document.createElement("div");
+            itemCard.className = "predefined-item-card clickable"; // Keep clickable class here
+            itemCard.setAttribute("data-index", index); // Store index for easy lookup
+
+            itemCard.innerHTML = `
+                        <span class="flex-grow">${item.name}</span>
+                        <div class="price-controls">
+                            <button class="price-control-btn minus-btn" data-index="${index}">-</button>
+                            <span class="font-bold text-green-700">$${item.price.toFixed(
+                              2
+                            )}</span>
+                            <button class="price-control-btn plus-btn" data-index="${index}">+</button>
+                        </div>
+                    `;
+            predefinedItemsContainer.appendChild(itemCard);
+          });
+        }
+      }
+
+      /**
+       * Handles adding a new quick sale item.
+       */
+      function addQuickSaleItem() {
+        const newItemName = newQuickItemNameInput.value.trim();
+        const newItemPrice = parseFloat(newQuickItemPriceInput.value);
+
+        if (!newItemName) {
+          displayMessage(
+            "እባክዎ ለአዲሱ ፈጣን ሽያጭ ዕቃ ስም ያስገቡ።",
+            "error",
+            messageBoxQuickSale
+          );
+          return;
+        }
+        if (isNaN(newItemPrice) || newItemPrice <= 0) {
+          displayMessage(
+            "እባክዎ ለአዲሱ ፈጣን ሽያጭ ዕቃ ትክክለኛ አዎንታዊ ዋጋ ያስገቡ።",
+            "error",
+            messageBoxQuickSale
+          );
+          return;
+        }
+
+        // Check for duplicate names (case-insensitive)
+        if (
+          predefinedShopItems.some(
+            (item) => item.name.toLowerCase() === newItemName.toLowerCase()
+          )
+        ) {
+          displayMessage(
+            `"${newItemName}" በፈጣን ሽያጭ ዕቃዎች ውስጥ አስቀድሞ አለ።`,
+            "error",
+            messageBoxQuickSale
+          );
+          return;
+        }
+
+        predefinedShopItems.push({ name: newItemName, price: newItemPrice });
+        savePredefinedItems(predefinedShopItems);
+        renderPredefinedItems();
+        displayMessage(
+          `"${newItemName}" ወደ ፈጣን ሽያጭ ዕቃዎች ታክሏል!`,
+          "success",
+          messageBoxQuickSale
+        );
+
+        newQuickItemNameInput.value = "";
+        newQuickItemPriceInput.value = "";
+      }
+
+      /**
+       * Handles price adjustments for quick sale items.
+       * @param {number} index - The index of the item in the predefinedShopItems array.
+       * @param {number} change - The amount to change the price by (e.g., 0.10 for +$0.10, -0.10 for -$0.10).
+       */
+      function adjustQuickItemPrice(index, change) {
+        if (index >= 0 && index < predefinedShopItems.length) {
+          const currentPrice = predefinedShopItems[index].price;
+          let newPrice = currentPrice + change;
+
+          // Ensure price doesn't go below zero
+          if (newPrice < 0) {
+            newPrice = 0;
+          }
+
+          predefinedShopItems[index].price = parseFloat(newPrice.toFixed(2)); // Round to 2 decimal places
+          savePredefinedItems(predefinedShopItems);
+          renderPredefinedItems(); // Re-render to show updated price
+          displayMessage(
+            `የ"${predefinedShopItems[index].name}" ዋጋ ወደ $${predefinedShopItems[
+              index
+            ].price.toFixed(2)} ተዘምኗል።`,
+            "success",
+            messageBoxQuickSale
+          );
+        }
+      }
+
+      // Event Listeners
+      document.addEventListener("DOMContentLoaded", () => {
+        // Assign DOM elements here first
+        itemNameInput = document.getElementById("itemName");
+        itemPriceInput = document.getElementById("itemPrice");
+        recordSaleBtn = document.getElementById("recordSaleBtn");
+        messageBox = document.getElementById("messageBox"); // Main message box
+        messageBoxQuickSale = document.getElementById("messageBoxQuickSale"); // Quick Sale message box
+
+        currentDateDisplay = document.getElementById("currentDateDisplay");
+        currentTotalItemsSoldSpan = document.getElementById(
+          "currentTotalItemsSold"
+        );
+        currentTotalRevenueSpan = document.getElementById(
+          "currentTotalRevenue"
+        );
+        currentItemsListDiv = document.getElementById("currentItemsList");
+        noCurrentItemsMessage = document.getElementById(
+          "noCurrentItemsMessage"
+        );
+
+        retrieveDateInput = document.getElementById("retrieveDate");
+        retrieveDataBtn = document.getElementById("retrieveDataBtn");
+        retrievedDataDisplayDiv = document.getElementById(
+          "retrievedDataDisplay"
+        );
+        noRetrievedDataMessage = document.getElementById(
+          "noRetrievedDataMessage"
+        );
+
+        predefinedItemsContainer = document.getElementById(
+          "predefinedItemsContainer"
+        );
+        noPredefinedItemsMessage = document.getElementById(
+          "noPredefinedItemsMessage"
+        );
+
+        newQuickItemNameInput = document.getElementById("newQuickItemName");
+        newQuickItemPriceInput = document.getElementById("newQuickItemPrice");
+        addQuickItemBtn = document.getElementById("addQuickItemBtn");
+
+        // Now, load data and render UI components
+        predefinedShopItems = loadPredefinedItems();
+        renderPredefinedItems();
+        displayCurrentDaySales(); // Display current day's sales on load
+        if (retrieveDateInput) {
+          // Defensive check
+          retrieveDateInput.value = getTodayDate(); // Pre-fill retrieve date with today's Gregorian date
+        }
+
+        // Add event listeners after all elements are assigned and initial rendering is done
+        if (recordSaleBtn)
+          recordSaleBtn.addEventListener("click", () => recordSale(messageBox)); // Pass main messageBox for manual sales
+        if (retrieveDataBtn)
+          retrieveDataBtn.addEventListener("click", retrieveData);
+        if (addQuickItemBtn)
+          addQuickItemBtn.addEventListener("click", addQuickSaleItem);
+
+        if (predefinedItemsContainer) {
+          // Defensive check
+          predefinedItemsContainer.addEventListener("click", (event) => {
+            const target = event.target;
+            const itemCard = target.closest(".predefined-item-card");
+
+            if (itemCard) {
+              const index = parseInt(itemCard.getAttribute("data-index"));
+
+              // Check if the click was on a price control button
+              if (target.classList.contains("plus-btn")) {
+                adjustQuickItemPrice(index, 0.1); // Increase price by $0.10
+              } else if (target.classList.contains("minus-btn")) {
+                adjustQuickItemPrice(index, -0.1); // Decrease price by $0.10
+              } else {
+                // If it's not a price control button, and it's within the item card, record sale
+                const item = predefinedShopItems[index];
+                if (item && itemNameInput && itemPriceInput && recordSaleBtn) {
+                  // Defensive checks
+                  itemNameInput.value = item.name;
+                  itemPriceInput.value = item.price;
+                  recordSale(messageBoxQuickSale); // Call recordSale and pass quickSaleMessageBox
+                }
+              }
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
