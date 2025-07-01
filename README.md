@@ -17,6 +17,7 @@ This is a simple shop management system built entirely in a single `index.html` 
 1. Open the `index.html` file in your browser (desktop or mobile).
 2. Use the interface to add quick sale items, record sales, and view sales data.
 3. All your data is saved in your browser's local storage.
+4. Performs Better Without translating the page contents written in Amharic that includes the dates and that causes a problem in month translation.
 
 ## Features
 
