@@ -107,7 +107,10 @@
         font-weight: 600;
         margin-bottom: 10px;
         padding-bottom: 5px;
+        padding-right: 20px;
         border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
       }
       .item-entry {
         display: flex;
@@ -265,7 +268,7 @@
             <label
               for="newQuickItemPrice"
               class="block text-gray-700 text-sm font-bold mb-2"
-              >የዕቃ ዋጋ (በአሜሪካን ዶላር):</label
+              >የዕቃ ዋጋ (ብር):</label
             >
             <input
               type="number"
@@ -309,14 +312,14 @@
         <p class="text-lg mb-4">
           ጠቅላላ ገቢ:
           <span id="currentTotalRevenue" class="font-semibold text-green-600"
-            >$0.00</span
+            >0.00 ብር</span
           >
         </p>
 
         <div class="item-list-header">
-          <span>ዕቃ</span>
-          <span>ብዛት</span>
-          <span>ዋጋ</span>
+          <span class="flex-1">ዕቃ</span>
+          <span class="w-1/6 text-center">ብዛት</span>
+          <span class="w-1/6 text-right">ዋጋ</span>
         </div>
         <div id="currentItemsList" class="max-h-48 overflow-y-auto pr-2">
           <!-- Items will be dynamically added here -->
@@ -348,7 +351,7 @@
             <label
               for="itemPrice"
               class="block text-gray-700 text-sm font-bold mb-2"
-              >የዕቃ ዋጋ (በአሜሪካን ዶላር):</label
+              >የዕቃ ዋጋ (ብር):</label
             >
             <input
               type="number"
@@ -701,8 +704,8 @@
           ? currentDayRecord.totalItemsSold
           : "0";
         currentTotalRevenueSpan.textContent = currentDayRecord
-          ? `$${currentDayRecord.totalRevenue.toFixed(2)}`
-          : "$0.00";
+          ? `${currentDayRecord.totalRevenue.toFixed(2)} ብር`
+          : "0.00 ብር";
 
         currentItemsListDiv.innerHTML = ""; // Clear previous list
         noCurrentItemsMessage.classList.add("hidden"); // Hide "No items" message
@@ -714,9 +717,9 @@
             itemEntry.innerHTML = `
                         <span class="flex-1">${item.name}</span>
                         <span class="w-1/6 text-center">${item.quantity}</span>
-                        <span class="w-1/6 text-right">$${item.price.toFixed(
+                        <span class="w-1/6 text-right">${item.price.toFixed(
                           2
-                        )}</span>
+                        )} ብር </span>
                     `;
             currentItemsListDiv.appendChild(itemEntry);
           });
@@ -757,13 +760,13 @@
                         <p class="text-lg mb-2">የተሸጡ ጠቅላላ ዕቃዎች: <span class="font-semibold text-blue-600">${
                           retrievedRecord.totalItemsSold
                         }</span></p>
-                        <p class="text-lg mb-4">ጠቅላላ ገቢ: <span class="font-semibold text-green-600">$${retrievedRecord.totalRevenue.toFixed(
+                        <p class="text-lg mb-4">ጠቅላላ ገቢ: <span class="font-semibold text-green-600">${retrievedRecord.totalRevenue.toFixed(
                           2
-                        )}</span></p>
+                        )} ብር </span></p>
                         <div class="item-list-header">
-                            <span>ዕቃ</span>
-                            <span>ብዛት</span>
-                            <span>ዋጋ</span>
+                            <span class="flex-1">ዕቃ</span>
+                            <span class="w-1/6">ብዛት</span>
+                            <span class="w-1/6">ዋጋ</span>
                         </div>
                         <div class="max-h-48 overflow-y-auto pr-2">
                             ${retrievedRecord.items
@@ -774,9 +777,9 @@
                                     <span class="w-1/6 text-center">${
                                       item.quantity
                                     }</span>
-                                    <span class="w-1/6 text-right">$${item.price.toFixed(
+                                    <span class="w-1/6 text-right">${item.price.toFixed(
                                       2
-                                    )}</span>
+                                    )} ብር</span>
                                 </div>
                             `
                               )
@@ -821,9 +824,9 @@
                         <span class="flex-grow">${item.name}</span>
                         <div class="price-controls">
                             <button class="price-control-btn minus-btn" data-index="${index}">-</button>
-                            <span class="font-bold text-green-700">$${item.price.toFixed(
+                            <span class="font-bold text-green-700">${item.price.toFixed(
                               2
-                            )}</span>
+                            )} ብር </span>
                             <button class="price-control-btn plus-btn" data-index="${index}">+</button>
                         </div>
                     `;
@@ -883,11 +886,6 @@
         newQuickItemPriceInput.value = "";
       }
 
-      /**
-       * Handles price adjustments for quick sale items.
-       * @param {number} index - The index of the item in the predefinedShopItems array.
-       * @param {number} change - The amount to change the price by (e.g., 0.10 for +$0.10, -0.10 for -$0.10).
-       */
       function adjustQuickItemPrice(index, change) {
         if (index >= 0 && index < predefinedShopItems.length) {
           const currentPrice = predefinedShopItems[index].price;
@@ -902,9 +900,9 @@
           savePredefinedItems(predefinedShopItems);
           renderPredefinedItems(); // Re-render to show updated price
           displayMessage(
-            `የ"${predefinedShopItems[index].name}" ዋጋ ወደ $${predefinedShopItems[
+            `የ"${predefinedShopItems[index].name}" ዋጋ ወደ ${predefinedShopItems[
               index
-            ].price.toFixed(2)} ተዘምኗል።`,
+            ].price.toFixed(2)} ብር ተቀይሯል።`,
             "success",
             messageBoxQuickSale
           );
@@ -980,9 +978,9 @@
 
               // Check if the click was on a price control button
               if (target.classList.contains("plus-btn")) {
-                adjustQuickItemPrice(index, 0.1); // Increase price by $0.10
+                adjustQuickItemPrice(index, 0.5); // Increase price by $0.50
               } else if (target.classList.contains("minus-btn")) {
-                adjustQuickItemPrice(index, -0.1); // Decrease price by $0.10
+                adjustQuickItemPrice(index, -0.5); // Decrease price by $0.50
               } else {
                 // If it's not a price control button, and it's within the item card, record sale
                 const item = predefinedShopItems[index];
