@@ -12,7 +12,7 @@ This is a simple shop management system built entirely in a single `index.html` 
 
 **The reason for building this as a single `index.html` file is because some mobile phone browsers do not work properly when CSS and JavaScript files are separated.** By keeping all the HTML, CSS, and JavaScript in one file, the application works reliably on a wider range of devices, especially on mobile browsers that have issues loading external resources.
 
-## How to Use
+# How to Use
 
 1. Open the `index.html` file in your browser (desktop or mobile).
 2. Use the interface to add quick sale items, record sales, and view sales data.
